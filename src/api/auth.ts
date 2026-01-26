@@ -14,6 +14,15 @@ export function fetchLogin(params: Api.Auth.LoginParams) {
   })
 }
 
+//退出登录
+export function fetchLogout() {
+  return request.post({
+    url: '/auth/logout'
+    // showSuccessMessage: true // 显示成功消息
+    // showErrorMessage: false // 不显示错误消息
+  })
+}
+
 /**
  * 获取用户信息
  * @returns 用户信息

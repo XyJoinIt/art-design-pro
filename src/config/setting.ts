@@ -28,7 +28,7 @@ import { SystemThemeEnum, MenuThemeEnum, MenuTypeEnum, ContainerWidthEnum } from
  */
 export const SETTING_DEFAULT_CONFIG = {
   /** 菜单类型 */
-  menuType: MenuTypeEnum.LEFT,
+  menuType: MenuTypeEnum.DUAL_MENU,
   /** 菜单展开宽度 */
   menuOpenWidth: 230,
   /** 菜单是否展开 */
@@ -78,7 +78,7 @@ export const SETTING_DEFAULT_CONFIG = {
   /** 页面过渡效果 */
   pageTransition: 'slide-left',
   /** 标签页样式 */
-  tabStyle: 'tab-default',
+  tabStyle: 'tab-google',
   /** 自定义圆角 */
   customRadius: '0.75',
   /** 容器宽度 */
