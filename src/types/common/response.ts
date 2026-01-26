@@ -28,8 +28,7 @@ export interface BaseResponse<T = unknown> {
   /** 数据 */
   data: T
   /** 是否成功 */
-  success: boolean,
+  success: boolean
   /**响应时间戳 */
   timeSpan: number
 }
-
