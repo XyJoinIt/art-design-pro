@@ -956,8 +956,8 @@ $font-color: #24292e;
   white-space: pre;
 }
 
-.markdown-body .pl-token.active,
-.markdown-body .pl-token:hover {
+.markdown-body .pl-accessToken.active,
+.markdown-body .pl-accessToken:hover {
   cursor: pointer;
   background: #ffea7f;
 }

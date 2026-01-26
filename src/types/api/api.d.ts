@@ -24,7 +24,7 @@
  * ## 使用方式
  *
  * ```typescript
- * const params: Api.Auth.LoginParams = { userName: 'admin', password: '123456' }
+ * const params: Api.Auth.LoginParams = { account: 'admin', password: '123456' }
  * const response: Api.Auth.UserInfo = await fetchUserInfo()
  * ```
  *
@@ -64,13 +64,13 @@ declare namespace Api {
   namespace Auth {
     /** 登录参数 */
     interface LoginParams {
-      userName: string
+      account: string
       password: string
     }
 
     /** 登录响应 */
     interface LoginResponse {
-      token: string
+      accessToken: string
       refreshToken: string
     }
 
@@ -79,7 +79,7 @@ declare namespace Api {
       buttons: string[]
       roles: string[]
       userId: number
-      userName: string
+      account: string
       email: string
       avatar?: string
     }
@@ -95,7 +95,7 @@ declare namespace Api {
       id: number
       avatar: string
       status: string
-      userName: string
+      account: string
       userGender: string
       nickName: string
       userPhone: string
@@ -109,7 +109,7 @@ declare namespace Api {
 
     /** 用户搜索参数 */
     type UserSearchParams = Partial<
-      Pick<UserListItem, 'id' | 'userName' | 'userGender' | 'userPhone' | 'userEmail' | 'status'> &
+      Pick<UserListItem, 'id' | 'account' | 'userGender' | 'userPhone' | 'userEmail' | 'status'> &
         Api.Common.CommonSearchParams
     >
 

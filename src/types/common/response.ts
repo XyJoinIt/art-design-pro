@@ -24,7 +24,12 @@ export interface BaseResponse<T = unknown> {
   /** 状态码 */
   code: number
   /** 消息 */
-  msg: string
+  message: string
   /** 数据 */
   data: T
+  /** 是否成功 */
+  success: boolean,
+  /**响应时间戳 */
+  timeSpan: number
 }
+

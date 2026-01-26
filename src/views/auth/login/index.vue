@@ -18,7 +18,7 @@
             @keyup.enter="handleSubmit"
             style="margin-top: 25px"
           >
-            <ElFormItem prop="account">
+            <!-- <ElFormItem prop="account">
               <ElSelect v-model="formData.account" @change="setupAccount">
                 <ElOption
                   v-for="account in accounts"
@@ -29,7 +29,7 @@
                   <span>{{ account.label }}</span>
                 </ElOption>
               </ElSelect>
-            </ElFormItem>
+            </ElFormItem> -->
             <ElFormItem prop="username">
               <ElInput
                 class="custom-height"
@@ -94,12 +94,12 @@
               </ElButton>
             </div>
 
-            <div class="mt-5 text-sm text-gray-600">
+            <!-- <div class="mt-5 text-sm text-gray-600">
               <span>{{ $t('login.noAccount') }}</span>
               <RouterLink class="text-theme" :to="{ name: 'Register' }">{{
                 $t('login.register')
               }}</RouterLink>
-            </div>
+            </div> -->
           </ElForm>
         </div>
       </div>
@@ -128,42 +128,13 @@
     formKey.value++
   })
 
-  type AccountKey = 'super' | 'admin' | 'user'
-
   export interface Account {
-    key: AccountKey
     label: string
-    userName: string
+    account: string
     password: string
     roles: string[]
   }
-
-  const accounts = computed<Account[]>(() => [
-    {
-      key: 'super',
-      label: t('login.roles.super'),
-      userName: 'Super',
-      password: '123456',
-      roles: ['R_SUPER']
-    },
-    {
-      key: 'admin',
-      label: t('login.roles.admin'),
-      userName: 'Admin',
-      password: '123456',
-      roles: ['R_ADMIN']
-    },
-    {
-      key: 'user',
-      label: t('login.roles.user'),
-      userName: 'User',
-      password: '123456',
-      roles: ['R_USER']
-    }
-  ])
-
   const dragVerify = ref()
-
   const userStore = useUserStore()
   const router = useRouter()
   const route = useRoute()
@@ -188,15 +159,13 @@
   const loading = ref(false)
 
   onMounted(() => {
-    setupAccount('super')
+    setupAccount()
   })
 
   // 设置账号
-  const setupAccount = (key: AccountKey) => {
-    const selectedAccount = accounts.value.find((account: Account) => account.key === key)
-    formData.account = key
-    formData.username = selectedAccount?.userName ?? ''
-    formData.password = selectedAccount?.password ?? ''
+  const setupAccount = () => {
+    formData.username = 'admin'
+    formData.password = '123456'
   }
 
   // 登录
@@ -219,18 +188,18 @@
       // 登录请求
       const { username, password } = formData
 
-      const { token, refreshToken } = await fetchLogin({
-        userName: username,
+      const { accessToken, refreshToken } = await fetchLogin({
+        account: username,
         password
       })
 
       // 验证token
-      if (!token) {
-        throw new Error('Login failed - no token received')
+      if (!accessToken) {
+        throw new Error('Login failed - no accessToken received')
       }
 
-      // 存储 token 和登录状态
-      userStore.setToken(token, refreshToken)
+      // 存储 accessToken 和登录状态
+      userStore.setToken(accessToken, refreshToken)
       userStore.setLoginStatus(true)
 
       // 登录成功处理

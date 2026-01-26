@@ -31,7 +31,7 @@
 
   // 校验规则
   const rules = {
-    // userName: [{ required: true, message: '请输入用户名', trigger: 'blur' }]
+    // account: [{ required: true, message: '请输入用户名', trigger: 'blur' }]
   }
 
   // 动态 options
@@ -59,7 +59,7 @@
   const formItems = computed(() => [
     {
       label: '用户名',
-      key: 'userName',
+      key: 'account',
       type: 'input',
       placeholder: '请输入用户名',
       clearable: true
