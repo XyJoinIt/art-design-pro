@@ -4,7 +4,7 @@ import { AppRouteRecord } from '@/types/router'
 // 获取用户列表
 export function fetchGetUserList(params: Api.SystemManage.UserSearchParams) {
   return request.get<Api.SystemManage.UserList>({
-    url: '/api/user/list',
+    url: '/sys/user/page',
     params
   })
 }
