@@ -2,30 +2,33 @@
   <ElDialog
     v-model="dialogVisible"
     :title="dialogType === 'add' ? '添加用户' : '编辑用户'"
-    width="30%"
+    width="50%"
     align-center
   >
-    <ElForm ref="formRef" :model="formData" :rules="rules" label-width="80px">
-      <ElFormItem label="用户名" prop="username">
-        <ElInput v-model="formData.username" placeholder="请输入用户名" />
+    <ElForm
+      ref="formRef"
+      :model="formData"
+      :rules="rules"
+      label-width="80px"
+      :span="6"
+      :gutter="12"
+    >
+      <ElFormItem label="用户名" prop="account">
+        <ElInput v-model="formData.account" placeholder="请输入用户名" />
       </ElFormItem>
       <ElFormItem label="手机号" prop="phone">
         <ElInput v-model="formData.phone" placeholder="请输入手机号" />
       </ElFormItem>
-      <ElFormItem label="性别" prop="gender">
-        <ElSelect v-model="formData.gender">
-          <ElOption label="男" value="男" />
-          <ElOption label="女" value="女" />
-        </ElSelect>
+      <ElFormItem label="姓名" prop="name">
+        <ElInput v-model="formData.name" placeholder="请输入姓名" />
       </ElFormItem>
-      <ElFormItem label="角色" prop="role">
-        <ElSelect v-model="formData.role" multiple>
-          <ElOption
-            v-for="role in roleList"
-            :key="role.roleCode"
-            :value="role.roleCode"
-            :label="role.roleName"
-          />
+      <ElFormItem label="邮箱" prop="email">
+        <ElInput v-model="formData.email" placeholder="请输入邮箱" />
+      </ElFormItem>
+      <ElFormItem label="状态" prop="status">
+        <ElSelect v-model="formData.status">
+          <ElOption label="正常" value="10" />
+          <ElOption label="禁用" value="20" />
         </ElSelect>
       </ElFormItem>
     </ElForm>
@@ -39,7 +42,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ROLE_LIST_DATA } from '@/mock/temp/formData'
   import type { FormInstance, FormRules } from 'element-plus'
 
   interface Props {
@@ -56,9 +58,6 @@
   const props = defineProps<Props>()
   const emit = defineEmits<Emits>()
 
-  // 角色列表数据
-  const roleList = ref(ROLE_LIST_DATA)
-
   // 对话框显示控制
   const dialogVisible = computed({
     get: () => props.visible,
@@ -72,24 +71,23 @@
 
   // 表单数据
   const formData = reactive({
-    username: '',
+    account: '',
     phone: '',
-    gender: '男',
-    role: [] as string[]
+    name: '',
+    email: '',
+    status: '10'
   })
 
   // 表单验证规则
   const rules: FormRules = {
-    username: [
+    account: [
       { required: true, message: '请输入用户名', trigger: 'blur' },
       { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
     ],
     phone: [
       { required: true, message: '请输入手机号', trigger: 'blur' },
       { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号格式', trigger: 'blur' }
-    ],
-    gender: [{ required: true, message: '请选择性别', trigger: 'blur' }],
-    role: [{ required: true, message: '请选择角色', trigger: 'blur' }]
+    ]
   }
 
   /**
@@ -101,10 +99,11 @@
     const row = props.userData
 
     Object.assign(formData, {
-      username: isEdit && row ? row.account || '' : '',
-      phone: isEdit && row ? row.userPhone || '' : '',
-      gender: isEdit && row ? row.userGender || '男' : '男',
-      role: isEdit && row ? (Array.isArray(row.userRoles) ? row.userRoles : []) : []
+      account: isEdit && row ? row.account || '' : '',
+      phone: isEdit && row ? row.phone || '' : '',
+      name: isEdit && row ? row.name || '' : '',
+      email: isEdit && row ? row.email || '' : '',
+      status: isEdit && row ? row.status || '10' : '10'
     })
   }
 

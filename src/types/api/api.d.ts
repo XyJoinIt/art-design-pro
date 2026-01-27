@@ -56,8 +56,20 @@ declare namespace Api {
       total: number
     }
 
-    /** 启用状态 */
-    type EnableStatus = '1' | '2'
+    /**  租户基础结构*/
+    interface TenantBase extends BaseEntity {
+      tenantId: number
+    }
+
+    /** 基础结构*/
+    interface BaseEntity {
+      id?: number
+      CreateTime?: string
+      CreateUserId?: number
+      UpdateTime?: string
+      UpdateUserId?: number
+      Remark?: string
+    }
   }
 
   /** 认证类型 */
@@ -91,26 +103,19 @@ declare namespace Api {
     type UserList = Api.Common.PaginatedResponse<UserListItem>
 
     /** 用户列表项 */
-    interface UserListItem {
-      id: number
-      avatar: string
-      status: string
-      account: string
-      userGender: string
-      nickName: string
-      userPhone: string
-      userEmail: string
-      userRoles: string[]
-      createBy: string
-      createTime: string
-      updateBy: string
-      updateTime: string
+    interface UserListItem extends Api.Common.TenantBase {
+      account?: string
+      password?: string
+      name?: string
+      phone?: string
+      status?: number
+      email?: string
+      lastLoginTime?: string
     }
 
     /** 用户搜索参数 */
     type UserSearchParams = Partial<
-      Pick<UserListItem, 'id' | 'account' | 'userGender' | 'userPhone' | 'userEmail' | 'status'> &
-        Api.Common.CommonSearchParams
+      Pick<UserListItem, 'id' | 'account' | 'userPhone'> & Api.Common.CommonSearchParams
     >
 
     /** 角色列表 */
