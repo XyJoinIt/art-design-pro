@@ -1,21 +1,12 @@
 <!-- 角色管理页面 -->
 <template>
-  <div class="art-full-height">
-    <RoleSearch
-      v-show="showSearchBar"
-      v-model="searchForm"
-      @search="handleSearch"
-      @reset="resetSearchParams"
-    ></RoleSearch>
+  <div class="user-page art-full-height">
+    <RoleSearch v-model="searchForm" @search="handleSearch" @reset="resetSearchParams"></RoleSearch>
 
-    <ElCard
-      class="art-table-card"
-      shadow="never"
-      :style="{ 'margin-top': showSearchBar ? '12px' : '0' }"
-    >
+    <ElCard class="art-table-card" shadow="never">
       <ArtTableHeader
+        tableLayout="auto"
         v-model:columns="columnChecks"
-        v-model:showSearchBar="showSearchBar"
         :loading="loading"
         @refresh="refreshData"
       >
@@ -28,6 +19,7 @@
 
       <!-- 表格 -->
       <ArtTable
+        tableLayout="auto"
         :loading="loading"
         :data="data"
         :columns="columns"
@@ -58,13 +50,13 @@
 <script setup lang="ts">
   import { ButtonMoreItem } from '@/components/core/forms/art-button-more/index.vue'
   import { useTable } from '@/hooks/core/useTable'
-  import { fetchGetRoleList } from '@/api/system-manage'
+  import { fetchGetRoleList } from '@/api/system'
   import ArtButtonMore from '@/components/core/forms/art-button-more/index.vue'
   import RoleSearch from './modules/role-search.vue'
   import RoleEditDialog from './modules/role-edit-dialog.vue'
   import RolePermissionDialog from './modules/role-permission-dialog.vue'
-  import { ElTag, ElMessageBox } from 'element-plus'
-
+  import { ElMessageBox } from 'element-plus'
+  import { fetchDeleteRole } from '@/api/system'
   defineOptions({ name: 'Role' })
 
   type RoleListItem = Api.SystemManage.RoleListItem
@@ -77,8 +69,6 @@
     enabled: undefined,
     daterange: undefined
   })
-
-  const showSearchBar = ref(false)
 
   const dialogVisible = ref(false)
   const permissionDialog = ref(false)
@@ -104,44 +94,25 @@
         current: 1,
         size: 20
       },
-      // 排除 apiParams 中的属性
       excludeParams: ['daterange'],
       columnsFactory: () => [
         {
-          prop: 'roleId',
+          prop: 'id',
           label: '角色ID',
           width: 100
         },
         {
-          prop: 'roleName',
-          label: '角色名称',
-          minWidth: 120
+          prop: 'name',
+          label: '角色名称'
         },
         {
-          prop: 'roleCode',
-          label: '角色编码',
-          minWidth: 120
+          prop: 'code',
+          label: '角色编码'
         },
         {
-          prop: 'description',
+          prop: 'remark',
           label: '角色描述',
-          minWidth: 150,
           showOverflowTooltip: true
-        },
-        {
-          prop: 'enabled',
-          label: '角色状态',
-          width: 100,
-          formatter: (row) => {
-            const statusConfig = row.enabled
-              ? { type: 'success', text: '启用' }
-              : { type: 'warning', text: '禁用' }
-            return h(
-              ElTag,
-              { type: statusConfig.type as 'success' | 'warning' },
-              () => statusConfig.text
-            )
-          }
         },
         {
           prop: 'createTime',
@@ -225,18 +196,20 @@
   }
 
   const deleteRole = (row: RoleListItem) => {
-    ElMessageBox.confirm(`确定删除角色"${row.roleName}"吗？此操作不可恢复！`, '删除确认', {
+    ElMessageBox.confirm(`确定删除角色"${row.name}"吗？此操作不可恢复！`, '删除确认', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'
     })
       .then(() => {
         // TODO: 调用删除接口
-        ElMessage.success('删除成功')
-        refreshData()
+        fetchDeleteRole(row.id).then(() => {
+          ElMessage.success('删除成功')
+          refreshData()
+        })
       })
       .catch(() => {
-        ElMessage.info('已取消删除')
+        //ElMessage.info('已取消删除')
       })
   }
 </script>

@@ -35,7 +35,7 @@
       <UserDialog
         v-model:visible="dialogVisible"
         :type="dialogType"
-        :user-data="currentUserData"
+        :edit-data="currentUserData"
         @submit="handleDialogSubmit"
       />
     </ElCard>
@@ -45,7 +45,7 @@
 <script setup lang="ts">
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
-  import { fetchGetUserList } from '@/api/system-manage'
+  import { fetchGetUserList, fetchDeleteUser } from '@/api/system'
   import UserSearch from './modules/user-search.vue'
   import UserDialog from './modules/user-dialog.vue'
   import { ElMessageBox, ElTag } from 'element-plus'
@@ -148,9 +148,8 @@
    * 显示用户弹窗
    */
   const showDialog = (type: DialogType, row?: UserListItem): void => {
-    console.log('打开弹窗:', { type, row })
-    dialogType.value = type
     currentUserData.value = row || {}
+    dialogType.value = type
     nextTick(() => {
       dialogVisible.value = true
     })
@@ -165,8 +164,11 @@
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'error'
-    }).then(() => {
+    }).then(async () => {
+      await fetchDeleteUser({ id: row.id as number })
       ElMessage.success('注销成功')
+      // 刷新表格数据
+      refreshData()
     })
   }
 
@@ -177,6 +179,8 @@
     try {
       dialogVisible.value = false
       currentUserData.value = {}
+      // 刷新表格数据
+      refreshData()
     } catch (error) {
       console.error('提交失败:', error)
     }

@@ -40,47 +40,22 @@
   const rules = {}
 
   /**
-   * 角色状态选项
-   */
-  const statusOptions = ref([
-    { label: '启用', value: true },
-    { label: '禁用', value: false }
-  ])
-
-  /**
    * 搜索表单配置项
    */
   const formItems = computed(() => [
     {
       label: '角色名称',
-      key: 'roleName',
+      key: 'name',
       type: 'input',
       placeholder: '请输入角色名称',
       clearable: true
     },
     {
       label: '角色编码',
-      key: 'roleCode',
+      key: 'code',
       type: 'input',
       placeholder: '请输入角色编码',
       clearable: true
-    },
-    {
-      label: '角色描述',
-      key: 'description',
-      type: 'input',
-      placeholder: '请输入角色描述',
-      clearable: true
-    },
-    {
-      label: '角色状态',
-      key: 'enabled',
-      type: 'select',
-      props: {
-        placeholder: '请选择状态',
-        options: statusOptions.value,
-        clearable: true
-      }
     },
     {
       label: '创建日期',

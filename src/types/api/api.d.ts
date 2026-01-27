@@ -58,7 +58,7 @@ declare namespace Api {
 
     /**  租户基础结构*/
     interface TenantBase extends BaseEntity {
-      tenantId: number
+      tenantId?: number
     }
 
     /** 基础结构*/
@@ -123,12 +123,10 @@ declare namespace Api {
 
     /** 角色列表项 */
     interface RoleListItem {
-      roleId: number
-      roleName: string
-      roleCode: string
-      description: string
-      enabled: boolean
-      createTime: string
+      id: number
+      name: string
+      code: string
+      remark?: string
     }
 
     /** 角色搜索参数 */

@@ -27,6 +27,7 @@
       </ArtTableHeader>
 
       <ArtTable
+        tableLayout="auto"
         ref="tableRef"
         rowKey="path"
         :loading="loading"
@@ -55,7 +56,7 @@
   import { useTableColumns } from '@/hooks/core/useTableColumns'
   import type { AppRouteRecord } from '@/types/router'
   import MenuDialog from './modules/menu-dialog.vue'
-  import { fetchGetMenuList } from '@/api/system-manage'
+  import { fetchGetMenuList } from '@/api/system'
   import { ElTag, ElMessageBox } from 'element-plus'
 
   defineOptions({ name: 'Menus' })

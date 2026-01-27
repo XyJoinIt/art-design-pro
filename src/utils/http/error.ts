@@ -124,6 +124,12 @@ export function handleError(error: AxiosError<ErrorResponse>): never {
     console.warn('Request cancelled:', error.message)
     throw new HttpError($t('httpMsg.requestCancelled'), ApiStatus.error)
   }
+  if (error.code == '400') {
+    throw new HttpError(error.message, ApiStatus.error, {
+      url: error.config?.url,
+      method: error.config?.method?.toUpperCase()
+    })
+  }
 
   const statusCode = error.response?.status
   const errorMessage = error.response?.data?.message || error.message
@@ -158,7 +164,7 @@ export function showError(error: HttpError, showMessage: boolean = true): void {
     ElMessage.error(error.message)
   }
   // 记录错误日志
-  console.error('[HTTP Error]', error.toLogData())
+  //console.error('[HTTP Error]', error.toLogData())
 }
 
 /**
