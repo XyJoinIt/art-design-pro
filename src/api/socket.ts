@@ -6,6 +6,9 @@ import request from '@/utils/http'
  */
 export function preConnect(userId: number) {
   return request.post<any>({
-    url: '/ws/pre-connect?websocketId=' + userId
+    url: '/ws/pre-connect',
+    data: {
+      id: userId
+    }
   })
 }

@@ -2,7 +2,7 @@
   <div class="art-card h-105 p-5 mb-5 max-sm:mb-4">
     <div class="art-card-header">
       <div class="title">
-        <h4>访问量</h4>
+        <h4>用户新增趋势</h4>
         <p>今年增长<span class="text-success">+15%</span></p>
       </div>
     </div>

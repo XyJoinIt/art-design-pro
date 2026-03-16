@@ -39,7 +39,7 @@
    */
   const dataList = reactive<CardDataItem[]>([
     {
-      des: '总访问次数',
+      des: '总用户数量',
       icon: 'ri:pie-chart-line',
       startVal: 0,
       duration: 1000,
@@ -47,7 +47,7 @@
       change: '+20%'
     },
     {
-      des: '在线访客数',
+      des: '在线数量',
       icon: 'ri:group-line',
       startVal: 0,
       duration: 1000,
@@ -55,7 +55,7 @@
       change: '+10%'
     },
     {
-      des: '点击量',
+      des: '论坛数量',
       icon: 'ri:fire-line',
       startVal: 0,
       duration: 1000,
