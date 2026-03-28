@@ -70,7 +70,7 @@
 
   // 弹窗相关
   const dialogVisible = ref(false)
-  const dialogType = ref<'menu' | 'button'>('menu')
+  const dialogType = ref<'menu' | 'button' | 'catalog' | undefined>('catalog')
   const editData = ref<AppRouteRecord | any>(null)
   const lockMenuType = ref(false)
   const isEdit = ref(false)
@@ -190,6 +190,12 @@
       formatter: () => h(ElTag, { type: 'success' }, () => '启用')
     },
     {
+      prop: 'sort',
+      label: '排序',
+      width: 80
+      //formatter: () => h(ElTag, { type: 'success' }, () => '启用')
+    },
+    {
       prop: 'operation',
       label: '操作',
       width: 180,
@@ -295,6 +301,7 @@
           (auth: { title: string; authMark: string }) => ({
             path: `${item.path}_auth_${auth.authMark}`,
             name: `${String(item.name)}_auth_${auth.authMark}`,
+            parentId: item.parentId,
             meta: {
               title: auth.title,
               authMark: auth.authMark,
@@ -357,8 +364,9 @@
    * 添加菜单
    */
   const handleAddMenu = (): void => {
-    dialogType.value = 'menu'
+    dialogType.value = 'catalog'
     editData.value = null
+    isEdit.value = false
     lockMenuType.value = true
     dialogVisible.value = true
   }
@@ -367,10 +375,10 @@
    * 添加权限按钮
    */
   const handleAddAuth = (row: AppRouteRecord): void => {
-    dialogType.value = 'menu'
+    dialogType.value = row.menuType
     editData.value = row
-    isEdit.value = false
     lockMenuType.value = false
+    isEdit.value = false
     dialogVisible.value = true
   }
 
@@ -380,7 +388,7 @@
    */
   const handleEditMenu = (row: AppRouteRecord): void => {
     isEdit.value = true
-    dialogType.value = 'menu'
+    dialogType.value = row.menuType
     editData.value = row
     lockMenuType.value = true
     dialogVisible.value = true
@@ -391,11 +399,12 @@
    * @param row 权限行数据
    */
   const handleEditAuth = (row: AppRouteRecord): void => {
-    dialogType.value = 'button'
+    dialogType.value = row.menuType
     isEdit.value = true
     editData.value = {
       title: row.meta?.title,
       id: row.id || 0,
+      parentId: row.parentId || 0,
       sort: row.meta?.sort || 1,
       permission: row.permission || ''
     }

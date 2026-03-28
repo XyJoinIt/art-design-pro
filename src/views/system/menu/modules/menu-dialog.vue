@@ -21,6 +21,7 @@
     >
       <template #menuType>
         <ElRadioGroup v-model="form.menuType" :disabled="disableMenuType">
+          <ElRadioButton value="catalog" label="catalog">目录</ElRadioButton>
           <ElRadioButton value="menu" label="menu">菜单</ElRadioButton>
           <ElRadioButton value="button" label="button">按钮</ElRadioButton>
         </ElRadioGroup>
@@ -75,7 +76,6 @@
     parentId: number
     name: string
     path: string
-    label: string
     component: string
     icon: string
     isEnable: boolean
@@ -99,7 +99,7 @@
   interface Props {
     visible: boolean
     editData?: AppRouteRecord | any
-    type?: 'menu' | 'button'
+    type?: 'menu' | 'button' | 'catalog'
     lockType?: boolean
     isEdit: boolean
   }
@@ -111,7 +111,7 @@
 
   const props = withDefaults(defineProps<Props>(), {
     visible: false,
-    type: 'menu',
+    type: 'catalog',
     lockType: false
   })
 
@@ -120,13 +120,12 @@
   const formRef = ref()
   const isEdit = ref(props.isEdit)
 
-  const form = reactive<MenuFormData & { menuType: 'menu' | 'button' }>({
+  const form = reactive<MenuFormData & { menuType: 'menu' | 'button' | 'catalog' }>({
     parentId: 0,
-    menuType: 'menu',
+    menuType: 'catalog',
     id: 0,
     name: '',
     path: '',
-    label: '',
     component: '',
     icon: '',
     isEnable: true,
@@ -165,11 +164,11 @@
     const baseItems: FormItem[] = [{ label: '菜单类型', key: 'menuType', span: 24 }]
     // Switch 组件的 span：小屏幕 12，大屏幕 6
     const switchSpan = width.value < 640 ? 12 : 6
-    if (form.menuType === 'menu') {
+    if (form.menuType === 'menu' || form.menuType === 'catalog') {
       return [
         ...baseItems,
-        { label: '菜单名称', key: 'name', type: 'input', props: { placeholder: '菜单名称' } },
-        { label: '权限标识', key: 'label', type: 'input', props: { placeholder: '如：User' } },
+        { label: '菜单名称', key: 'title', type: 'input', props: { placeholder: '菜单名称' } },
+        { label: '权限标识', key: 'name', type: 'input', props: { placeholder: '如：User' } },
         {
           label: createLabelTooltip(
             '路由地址',
@@ -242,17 +241,14 @@
   })
 
   const dialogTitle = computed(() => {
-    const type = form.menuType === 'menu' ? '菜单' : '按钮'
-    return isEdit.value ? `编辑${type}` : `新建${type}`
+    return isEdit.value ? `编辑` : `新建`
   })
 
   /**
    * 是否禁用菜单类型切换
    */
   const disableMenuType = computed(() => {
-    console.log(isEdit.value)
     if (isEdit.value) return true
-    if (!isEdit.value && form.menuType === 'menu' && props.lockType) return true
     return false
   })
 
@@ -261,7 +257,7 @@
    */
   const resetForm = (): void => {
     formRef.value?.reset()
-    form.menuType = 'menu'
+    form.menuType = 'catalog'
   }
 
   /**
@@ -269,16 +265,22 @@
    */
   const loadFormData = (): void => {
     if (!props.editData) return
+    console.log('携带数据:', props.editData)
+    if (props.editData.menuType === 'catalog') {
+      form.parentId = props.editData?.id || 0
+      form.menuType = 'menu'
+    } else form.parentId = props.editData?.parentId || 0
+    if (!props.isEdit) return
     isEdit.value = true
-    if (form.menuType === 'menu') {
-      const row = props.editData
+    const row = props.editData
+    form.sort = props.editData?.sort || 1
+    if (form.menuType === 'menu' || form.menuType === 'catalog') {
       form.id = row.id || 0
-      form.name = formatMenuTitle(row.meta?.title || '')
+      form.title = row.meta?.title || ''
+      form.name = row.name || ''
       form.path = row.path || ''
-      form.label = row.name || ''
       form.component = row.component || ''
       form.icon = row.meta?.icon || ''
-      form.sort = row.meta?.sort || 1
       form.isMenu = row.meta?.isMenu ?? true
       form.keepAlive = row.meta?.keepAlive ?? false
       form.isHide = row.meta?.isHide ?? false
@@ -293,11 +295,9 @@
       form.roles = row.meta?.roles || []
       form.isFullPage = row.meta?.isFullPage ?? false
     } else {
-      const row = props.editData
       form.id = row.id || 0
       form.title = row.title || ''
       form.permission = row.permission || ''
-      form.sort = row.sort || 1
     }
   }
 
@@ -308,10 +308,15 @@
     if (!formRef.value) return
     try {
       await formRef.value.validate()
+      const param = {
+        ...form,
+        status: form.isEnable === true ? 10 : 20,
+        menuType: form.menuType === 'menu' ? 20 : form.menuType === 'catalog' ? 10 : 30
+      }
       if (isEdit.value) {
-        await fetchEditMenu(form)
+        await fetchEditMenu(param)
       } else {
-        await fetchAddMenu(form)
+        await fetchAddMenu(param)
       }
       emit('submit', { ...form })
       ElMessage.success(`${isEdit.value ? '编辑' : '新增'}成功`)
@@ -344,9 +349,8 @@
     (newVal) => {
       if (newVal) {
         form.menuType = props.type
-        form.parentId = props.editData?.id || 0
         nextTick(() => {
-          if (props.isEdit) {
+          if (props.editData) {
             loadFormData()
           }
         })
@@ -362,15 +366,7 @@
     (newType) => {
       if (props.visible) {
         form.menuType = newType
-        form.parentId = props.editData?.id || 0
       }
-    }
-  )
-
-  watch(
-    () => props.isEdit,
-    (newVal) => {
-      isEdit.value = newVal
     }
   )
 </script>

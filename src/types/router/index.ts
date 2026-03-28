@@ -77,6 +77,7 @@ export interface AppRouteRecord extends Omit<RouteRecordRaw, 'meta' | 'children'
   meta: RouteMeta
   /** 菜单类型 */
   menuType?: 'menu' | 'button' | 'catalog'
+  parentId: number
   children?: AppRouteRecord[]
   permission?: string
   component?: string | (() => Promise<any>)
