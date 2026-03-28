@@ -75,6 +75,9 @@ export interface RouteMeta extends Record<string | number | symbol, unknown> {
 export interface AppRouteRecord extends Omit<RouteRecordRaw, 'meta' | 'children' | 'component'> {
   id?: number
   meta: RouteMeta
+  /** 菜单类型 */
+  menuType?: 'menu' | 'button' | 'catalog'
   children?: AppRouteRecord[]
+  permission?: string
   component?: string | (() => Promise<any>)
 }

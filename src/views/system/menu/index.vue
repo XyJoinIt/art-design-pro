@@ -19,8 +19,7 @@
         @refresh="handleRefresh"
       >
         <template #left>
-          <!-- <ElButton v-auth="'add'" @click="handleAddMenu" v-ripple> 添加菜单 </ElButton> -->
-          <ElButton @click="handleAddMenu" v-ripple> 添加菜单 </ElButton>
+          <ElButton v-auth="'add'" @click="handleAddMenu" v-ripple> 添加菜单 </ElButton>
           <ElButton @click="toggleExpand" v-ripple>
             {{ isExpanded ? '收起' : '展开' }}
           </ElButton>
@@ -44,6 +43,7 @@
         v-model:visible="dialogVisible"
         :type="dialogType"
         :editData="editData"
+        :isEdit="isEdit"
         :lockType="lockMenuType"
         @submit="handleSubmit"
       />
@@ -59,6 +59,7 @@
   import MenuDialog from './modules/menu-dialog.vue'
   import { fetchGetMenuList } from '@/api/system'
   import { ElTag, ElMessageBox } from 'element-plus'
+  import { fetchDeleteMenu } from '@/api/system'
 
   defineOptions({ name: 'Menus' })
 
@@ -72,6 +73,7 @@
   const dialogType = ref<'menu' | 'button'>('menu')
   const editData = ref<AppRouteRecord | any>(null)
   const lockMenuType = ref(false)
+  const isEdit = ref(false)
 
   // 搜索相关
   const initialSearchState = {
@@ -125,11 +127,9 @@
   const getMenuTypeTag = (
     row: AppRouteRecord
   ): 'primary' | 'success' | 'warning' | 'info' | 'danger' => {
-    if (row.meta?.isAuthButton) return 'danger'
-    if (row.children?.length) return 'info'
-    if (row.meta?.link && row.meta?.isIframe) return 'success'
-    if (row.path) return 'primary'
-    if (row.meta?.link) return 'warning'
+    if (row.menuType === 'menu') return 'primary'
+    if (row.menuType === 'catalog') return 'info'
+    if (row.menuType === 'button') return 'danger'
     return 'info'
   }
 
@@ -139,11 +139,9 @@
    * @returns 菜单类型文本
    */
   const getMenuTypeText = (row: AppRouteRecord): string => {
-    if (row.meta?.isAuthButton) return '按钮'
-    if (row.children?.length) return '目录'
-    if (row.meta?.link && row.meta?.isIframe) return '内嵌'
-    if (row.path) return '菜单'
-    if (row.meta?.link) return '外链'
+    if (row.menuType === 'menu') return '菜单'
+    if (row.menuType === 'catalog') return '目录'
+    if (row.menuType === 'button') return '按钮'
     return '未知'
   }
 
@@ -166,16 +164,16 @@
       prop: 'path',
       label: '路由',
       formatter: (row: AppRouteRecord) => {
-        if (row.meta?.isAuthButton) return ''
+        if (row.menuType === 'button') return ''
         return row.meta?.link || row.path || ''
       }
     },
     {
-      prop: 'meta.authList',
+      prop: 'permission',
       label: '权限标识',
       formatter: (row: AppRouteRecord) => {
-        if (row.meta?.isAuthButton) {
-          return row.meta?.authMark || ''
+        if (row.menuType === 'button') {
+          return row.permission || ''
         }
         if (!row.meta?.authList?.length) return ''
         return `${row.meta.authList.length} 个权限标识`
@@ -198,33 +196,35 @@
       align: 'right',
       formatter: (row: AppRouteRecord) => {
         const buttonStyle = { style: 'text-align: right' }
-
-        if (row.meta?.isAuthButton) {
+        if (row.menuType === 'button') {
           return h('div', buttonStyle, [
             h(ArtButtonTable, {
               type: 'edit',
+              auth: 'edit',
               onClick: () => handleEditAuth(row)
             }),
             h(ArtButtonTable, {
               type: 'delete',
-              onClick: () => handleDeleteAuth()
+              auth: 'delete',
+              onClick: () => handleDeleteAuth(row)
             })
           ])
         }
-
         return h('div', buttonStyle, [
           h(ArtButtonTable, {
             type: 'add',
-            onClick: () => handleAddAuth(),
-            title: '新增权限'
+            auth: 'add',
+            onClick: () => handleAddAuth(row)
           }),
           h(ArtButtonTable, {
             type: 'edit',
+            auth: 'edit',
             onClick: () => handleEditMenu(row)
           }),
           h(ArtButtonTable, {
             type: 'delete',
-            onClick: () => handleDeleteMenu()
+            auth: 'delete',
+            onClick: () => handleDeleteMenu(row)
           })
         ])
       }
@@ -366,9 +366,10 @@
   /**
    * 添加权限按钮
    */
-  const handleAddAuth = (): void => {
+  const handleAddAuth = (row: AppRouteRecord): void => {
     dialogType.value = 'menu'
-    editData.value = null
+    editData.value = row
+    isEdit.value = false
     lockMenuType.value = false
     dialogVisible.value = true
   }
@@ -378,6 +379,7 @@
    * @param row 菜单行数据
    */
   const handleEditMenu = (row: AppRouteRecord): void => {
+    isEdit.value = true
     dialogType.value = 'menu'
     editData.value = row
     lockMenuType.value = true
@@ -390,9 +392,12 @@
    */
   const handleEditAuth = (row: AppRouteRecord): void => {
     dialogType.value = 'button'
+    isEdit.value = true
     editData.value = {
       title: row.meta?.title,
-      authMark: row.meta?.authMark
+      id: row.id || 0,
+      sort: row.meta?.sort || 1,
+      permission: row.permission || ''
     }
     lockMenuType.value = false
     dialogVisible.value = true
@@ -424,15 +429,18 @@
   /**
    * 删除菜单
    */
-  const handleDeleteMenu = async (): Promise<void> => {
+  const handleDeleteMenu = async (row: AppRouteRecord): Promise<void> => {
     try {
       await ElMessageBox.confirm('确定要删除该菜单吗？删除后无法恢复', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       })
-      ElMessage.success('删除成功')
-      getMenuList()
+      console.log(row.id)
+      await fetchDeleteMenu(row.id || 0).then(() => {
+        ElMessage.success('删除成功')
+        getMenuList()
+      })
     } catch (error) {
       if (error !== 'cancel') {
         ElMessage.error('删除失败')
@@ -443,15 +451,17 @@
   /**
    * 删除权限按钮
    */
-  const handleDeleteAuth = async (): Promise<void> => {
+  const handleDeleteAuth = async (row: AppRouteRecord): Promise<void> => {
     try {
       await ElMessageBox.confirm('确定要删除该权限吗？删除后无法恢复', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       })
-      ElMessage.success('删除成功')
-      getMenuList()
+      await fetchDeleteMenu(row.id || 0).then(() => {
+        ElMessage.success('删除成功')
+        getMenuList()
+      })
     } catch (error) {
       if (error !== 'cancel') {
         ElMessage.error('删除失败')

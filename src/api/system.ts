@@ -116,3 +116,52 @@ export function fetchGetMenuList() {
     url: `/sys/menu/list`
   })
 }
+
+/**
+ * 获取登录菜单
+ * @param id
+ * @returns
+ */
+export function fetchGetLoginMenuList() {
+  return request.get<AppRouteRecord[]>({
+    url: `/sys/menu/loginMenu`
+  })
+}
+
+/**
+ * 新增菜单
+ * @param data
+ * @returns
+ */
+export function fetchAddMenu(data: any) {
+  return request.post({
+    url: '/sys/menu/add',
+    data
+  })
+}
+
+/**
+ * 编辑菜单
+ * @param data
+ * @returns
+ */
+export function fetchEditMenu(data: any) {
+  return request.post({
+    url: '/sys/menu/edit',
+    data
+  })
+}
+
+/**
+ * 删除菜单
+ * @param id
+ * @returns
+ */
+export function fetchDeleteMenu(id: number) {
+  return request.post({
+    url: `/sys/menu/delete`,
+    data: {
+      id
+    }
+  })
+}

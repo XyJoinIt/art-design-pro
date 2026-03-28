@@ -1,6 +1,7 @@
 <!-- 表格按钮 -->
 <template>
   <div
+    v-auth="auth"
     :class="[
       'inline-flex items-center justify-center min-w-8 h-8 px-2.5 mr-2.5 text-sm c-p rounded-md align-middle',
       buttonClass
@@ -14,12 +15,13 @@
 
 <script setup lang="ts">
   defineOptions({ name: 'ArtButtonTable' })
-
   interface Props {
     /** 按钮类型 */
     type?: 'add' | 'edit' | 'delete' | 'more' | 'view'
     /** 按钮图标 */
     icon?: string
+    /** 按钮权限 */
+    auth?: string
     /** 按钮样式类 */
     iconClass?: string
     /** icon 颜色 */
