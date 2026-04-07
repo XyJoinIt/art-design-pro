@@ -49,11 +49,12 @@
 
   // 搜索表单
   const searchForm = ref({
-    phone: undefined
+    phone: undefined,
   })
 
   const {
     columns,
+    columnChecks,
     data,
     loading,
     pagination,
@@ -79,21 +80,13 @@
           label: '头像',
           formatter: (row) => {
             return h(ElAvatar, {
-              src:
-                row.avatar === ''
-                  ? 'src/assets/images/avatar/avatar.webp'
-                  : import.meta.env.VITE_IMG_URL + row.avatar,
+              src: row.avatar === '' ? 'src/assets/images/avatar/avatar.webp' : import.meta.env.VITE_IMG_URL + row.avatar,
               style: { width: '40px', height: '40px' }
             })
           }
         },
         { prop: 'nickName', label: '用户昵称' },
         { prop: 'phone', label: '手机号' },
-        {
-          prop: 'birthday',
-          label: '生日'
-        },
-        { prop: 'email', label: '邮箱' },
         {
           prop: 'status',
           label: '状态',
@@ -103,6 +96,7 @@
             )
           }
         },
+        { prop: 'email', label: '邮箱' },
         // { prop: 'lastLoginTime', label: '最后登录时间' },
         { prop: 'createTime', label: '创建日期' },
         {
@@ -136,8 +130,8 @@
    * @param params 参数
    */
   const handleSearch = (params: Record<string, any>) => {
-    if (!('startTime' in params)) delete searchParams.startTime
-    if (!('endTime' in params)) delete searchParams.endTime
+    console.log(params)
+    // 搜索参数赋值
     Object.assign(searchParams, params)
     getData()
   }

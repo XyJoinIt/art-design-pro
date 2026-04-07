@@ -40,6 +40,10 @@ interface AuthBinding extends DirectiveBinding {
 }
 
 function checkAuthPermission(el: HTMLElement, binding: AuthBinding): void {
+   // 如果没有传入权限标识，直接放行，不进行权限验证
+   if (!binding.value) {
+    return;
+  }
   // 获取当前路由的权限列表
   const authList = (router.currentRoute.value.meta.authList as Array<{ authMark: string }>) || []
 

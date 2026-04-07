@@ -1,37 +1,3 @@
-/**
- * API 接口类型定义模块
- *
- * 提供所有后端接口的类型定义
- *
- * ## 主要功能
- *
- * - 通用类型（分页参数、响应结构等）
- * - 认证类型（登录、用户信息等）
- * - 系统管理类型（用户、角色等）
- * - 全局命名空间声明
- *
- * ## 使用场景
- *
- * - API 请求参数类型约束
- * - API 响应数据类型定义
- * - 接口文档类型同步
- *
- * ## 注意事项
- *
- * - 在 .vue 文件使用需要在 eslint.config.mjs 中配置 globals: { Api: 'readonly' }
- * - 使用全局命名空间，无需导入即可使用
- *
- * ## 使用方式
- *
- * ```typescript
- * const params: Api.Auth.LoginParams = { account: 'admin', password: '123456' }
- * const response: Api.Auth.UserInfo = await fetchUserInfo()
- * ```
- *
- * @module types/api/api
- * @author Art Design Pro Team
- */
-
 declare namespace Api {
   /** 通用类型 */
   namespace Common {
@@ -105,6 +71,7 @@ declare namespace Api {
     /** 用户列表项 */
     interface UserListItem extends Api.Common.TenantBase {
       account?: string
+      nickName?: string
       password?: string
       name?: string
       phone?: string
@@ -134,5 +101,34 @@ declare namespace Api {
       Pick<RoleListItem, 'roleId' | 'roleName' | 'roleCode' | 'description' | 'enabled'> &
         Api.Common.CommonSearchParams
     >
+  }
+
+  /** app应用 */
+  namespace App {
+    namespace Customer {
+      /** 客户列表 */
+      type CustomerPage = Api.Common.PaginatedResponse<CustomerItem>
+
+      /** 客户列表项 */
+      interface CustomerItem extends Api.Common.TenantBase {
+        id: number
+        phone: string
+        avatar?: string
+        backgroundImage?: string
+        nickName?: string
+        gender?: number
+        signature?: string
+        region?: string
+        email?: string
+        birthDay?: string
+        status?: number
+      }
+
+      /** 客户搜索参数 */
+      type CustomerSearchParams = Partial<
+        Pick<CustomerItem, 'phone' | 'nickName' | 'startTime' | 'endTime'> &
+          Api.Common.CommonSearchParams
+      >
+    }
   }
 }

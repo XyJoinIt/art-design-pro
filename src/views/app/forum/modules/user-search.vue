@@ -74,15 +74,13 @@
   async function handleSearch() {
     await searchBarRef.value.validate()
     const searchData = { ...formData.value }
-    if (
-      searchData.daterange &&
-      Array.isArray(searchData.daterange) &&
-      searchData.daterange.length === 2
-    ) {
+    // 如果存在 daterange，拆分为 statTime 和 endTime
+    if (searchData.daterange && Array.isArray(searchData.daterange)) {
       searchData.startTime = searchData.daterange[0]
       searchData.endTime = searchData.daterange[1]
+      delete searchData.daterange
     }
-    delete searchData.daterange
     emit('search', searchData)
+    console.log('表单数据', searchData)
   }
 </script>

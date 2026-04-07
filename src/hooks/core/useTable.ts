@@ -424,10 +424,8 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
   const getDataByPage = async (params?: Partial<TParams>): Promise<ApiResponse<TRecord> | void> => {
     pagination.current = 1
     ;(searchParams as Record<string, unknown>)[pageKey] = 1
-
     // 搜索时清空当前搜索条件的缓存，确保获取最新数据
     clearCache(CacheInvalidationStrategy.CLEAR_CURRENT, '搜索数据')
-
     try {
       return await fetchData(params, false) // 搜索时不使用缓存
     } catch {

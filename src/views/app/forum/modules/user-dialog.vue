@@ -35,9 +35,7 @@
   import type { FormItem } from '@/components/core/forms/art-form/index.vue'
   import ArtForm from '@/components/core/forms/art-form/index.vue'
   import { useWindowSize } from '@vueuse/core'
-  import { fetchEditCustomer } from '@/api/app'
-  import { ElAvatar } from 'element-plus'
-  import { GenderEnum, SystemStatusEnum } from '@/types/enum'
+  import { fetchAddUser, fetchEditUser } from '@/api/system'
   const { width } = useWindowSize()
 
   const loading = ref(false)
@@ -63,12 +61,13 @@
   const formRef = ref()
   const isEdit = ref(false)
 
-  const form = reactive<Api.App.Customer.CustomerItem>({
-    nickName: '',
-    id: 0,
+  const form = reactive<Api.SystemManage.UserListItem>({
+    account: '',
     phone: '',
+    name: '',
     email: '',
-    status: 10
+    status: 10,
+    password: ''
   })
 
   const rules = reactive<FormRules>({
@@ -89,22 +88,8 @@
    */
   const formItems = computed<FormItem[]>(() => {
     const arr = [
-      //头像
-      {
-        label: '头像',
-        key: 'avatar',
-        type: 'upload',
-        span: 24,
-        render: () => {
-          return h(ElAvatar, {
-            src: form.avatar
-              ? import.meta.env.VITE_IMG_URL + form.avatar
-              : 'src/assets/images/avatar/avatar.webp',
-            style: { width: '60px', height: '60px' }
-          })
-        }
-      },
-      { label: '昵称', key: 'nickName', type: 'input', props: { placeholder: '请输入昵称' } },
+      { label: '用户名', key: 'account', type: 'input', props: { placeholder: '请输入用户名' } },
+      { label: '姓名', key: 'name', type: 'input', props: { placeholder: '请输入姓名' } },
       { label: '手机号', key: 'phone', type: 'input', props: { placeholder: '请输入手机号' } },
       { label: '邮箱', key: 'email', type: 'input', props: { placeholder: '请输入邮箱' } },
       {
@@ -114,69 +99,14 @@
         props: { placeholder: '请选择状态', options: statusOptions.value }
       },
       {
-        label: '性别',
-        key: 'gender',
-        type: 'select',
-        props: {
-          placeholder: '请选择性别',
-          options: genderOptions.value
-        }
-      },
-      //地区
-      {
-        label: '地区',
-        key: 'region',
-        type: 'select',
-        props: {
-          placeholder: '请选择地区',
-          options: regionOptions.value
-        }
-      },
-      //生日
-      {
-        label: '生日',
-        key: 'birthday',
-        type: 'date',
-        props: { placeholder: '请选择生日', width: '100%' }
-      },
-      {
         label: '密码',
         key: 'password',
         type: 'input',
         hidden: isEdit.value,
         props: { placeholder: '请输入密码', type: 'password', showPassword: true }
-      },
-      //个性签名
-      {
-        label: '个性签名',
-        key: 'signature',
-        span: 24,
-        type: 'input',
-        props: { placeholder: '请输入个性签名' }
       }
     ]
     return arr
-  })
-  /**
-   * 地区选项
-   */
-  const regionOptions = computed(() => {
-    return [
-      { label: '中国', value: 1 },
-      { label: '美国', value: 2 },
-      { label: '日本', value: 3 }
-    ]
-  })
-
-  /**
-   * 性别选项
-   */
-  const genderOptions = computed(() => {
-    return [
-      { label: '男', value: GenderEnum.Male },
-      { label: '女', value: GenderEnum.Female },
-      { label: '未知', value: GenderEnum.Unknown }
-    ]
   })
 
   /**
@@ -184,8 +114,8 @@
    */
   const statusOptions = computed(() => {
     return [
-      { label: '正常', value: SystemStatusEnum.Normal },
-      { label: '停用', value: SystemStatusEnum.Disabled }
+      { label: '正常', value: 10 },
+      { label: '停用', value: 20 }
     ]
   })
 
@@ -202,6 +132,7 @@
   const resetForm = (): void => {
     formRef.value?.reset()
     form.status = 10
+    form.password = ''
   }
 
   /**
@@ -215,12 +146,9 @@
     console.log(props.editData)
     const row = props.editData
     form.id = row.id || 0
-    form.nickName = row.nickName || ''
+    form.account = row.account || ''
+    form.name = row.name || ''
     form.status = row.status || 10
-    form.gender = row.gender || 1
-    form.region = row.region || 1
-    form.signature = row.signature || ''
-    form.avatar = row.avatar || ''
     form.email = row.email || ''
     form.phone = row.phone || ''
   }
@@ -234,9 +162,9 @@
     loading.value = true
     try {
       if (isEdit.value) {
-        await fetchEditCustomer({ ...form })
+        await fetchEditUser({ ...form })
       } else {
-        //await fetchAddUser({ ...form })
+        await fetchAddUser({ ...form })
       }
       emit('submit', { ...form })
       ElMessage.success(`${isEdit.value ? '编辑' : '新增'}成功`)
