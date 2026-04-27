@@ -36,3 +36,13 @@ export function fetchDeleteCustomer(id: number) {
     url: `/app/customer/delete/${id}`
   })
 }
+
+/**
+ * 评论分页
+ */
+export function fetchCommentPage(params: Api.App.Comment.CommentSearchParams) {
+  return request.get<Api.App.Comment.CommentPage>({
+    url: '/app/forum/share/comment-page',
+    params
+  })
+}

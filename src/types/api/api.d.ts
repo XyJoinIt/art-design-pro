@@ -130,5 +130,26 @@ declare namespace Api {
           Api.Common.CommonSearchParams
       >
     }
+
+    namespace Comment {
+      /** 评论列表 */
+      type CommentPage = Api.Common.PaginatedResponse<CommentItem>
+
+      /** 评论列表项 */
+      interface CommentItem extends Api.Common.TenantBase {
+        id: number
+        userId: number
+        parentId?: number
+        userName?: string
+        userAvatar?: string
+        content?: string
+        createTime?: string
+      }
+
+      /** 评论搜索参数 */
+      type CommentSearchParams = Partial<
+        Pick<CommentItem, 'userId' | 'startTime' | 'endTime'> & Api.Common.CommonSearchParams
+      >
+    }
   }
 }

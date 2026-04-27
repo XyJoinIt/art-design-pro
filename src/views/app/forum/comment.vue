@@ -20,7 +20,7 @@
       <UserDialog
         v-model:visible="dialogVisible"
         :type="dialogType"
-        :edit-data="currentUserData"
+        :edit-data="currentCommentData"
         @submit="handleDialogSubmit"
       />
     </ElCard>
@@ -30,26 +30,27 @@
 <script setup lang="ts">
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
-  import { fetchCustomerPage } from '@/api/app'
+  import { fetchCommentPage } from '@/api/app'
   import UserSearch from './modules/user-search.vue'
   import UserDialog from './modules/user-dialog.vue'
-  import { ElAvatar, ElMessageBox, ElTag } from 'element-plus'
+  import { ElAvatar, ElMessageBox } from 'element-plus'
   import { DialogType } from '@/types'
   defineOptions({ name: 'User' })
 
-  type UserListItem = Api.SystemManage.UserListItem
+  type CommentListItem = Api.App.Comment.CommentItem
 
   // 弹窗相关
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
-  const currentUserData = ref<Partial<UserListItem>>({})
+  const currentCommentData = ref<Partial<CommentListItem>>({})
 
   // 选中行
-  const selectedRows = ref<UserListItem[]>([])
+  const selectedRows = ref<CommentListItem[]>([])
 
   // 搜索表单
   const searchForm = ref({
-    phone: undefined
+    customerId: undefined,
+    userId: undefined
   })
 
   const {
@@ -66,7 +67,7 @@
   } = useTable({
     // 核心配置
     core: {
-      apiFn: fetchCustomerPage,
+      apiFn: fetchCommentPage,
       apiParams: {
         current: 1,
         size: 20,
@@ -75,32 +76,21 @@
       columnsFactory: () => [
         { prop: 'id', width: 180, label: '用户ID' }, // 用户ID
         {
-          prop: 'name',
+          prop: 'userAvatar',
           label: '头像',
           formatter: (row) => {
             return h(ElAvatar, {
               src:
-                row.avatar === ''
+                row.userAvatar === ''
                   ? 'src/assets/images/avatar/avatar.webp'
-                  : import.meta.env.VITE_IMG_URL + row.avatar,
+                  : import.meta.env.VITE_IMG_URL + row.userAvatar,
               style: { width: '40px', height: '40px' }
             })
           }
         },
-        { prop: 'nickName', label: '用户昵称' },
-        { prop: 'phone', label: '手机号' },
-        {
-          prop: 'status',
-          label: '状态',
-          formatter: (row) => {
-            return h(ElTag, { type: row.status === 10 ? 'success' : 'danger' }, () =>
-              row.status === 10 ? '正常' : '停用'
-            )
-          }
-        },
-        { prop: 'email', label: '邮箱' },
-        // { prop: 'lastLoginTime', label: '最后登录时间' },
-        { prop: 'createTime', label: '创建日期' },
+        { prop: 'userName', label: '用户昵称' },
+        { prop: 'content', label: '评论内容' },
+        { prop: 'createdTime', label: '评论日期' },
         {
           prop: 'operation',
           label: '操作',
@@ -141,8 +131,8 @@
   /**
    * 显示用户弹窗
    */
-  const showDialog = (type: DialogType, row?: UserListItem): void => {
-    currentUserData.value = row || {}
+  const showDialog = (type: DialogType, row?: CommentListItem): void => {
+    currentCommentData.value = row || {}
     dialogType.value = type
     nextTick(() => {
       dialogVisible.value = true
@@ -152,9 +142,9 @@
   /**
    * 删除用户
    */
-  const deleteUser = (row: UserListItem): void => {
-    console.log('删除用户:', row)
-    ElMessageBox.confirm(`确定要注销该用户吗？`, '注销用户', {
+  const deleteUser = (row: CommentListItem): void => {
+    console.log('删除评论:', row)
+    ElMessageBox.confirm(`确定要注销该评论吗？`, '注销评论', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'error'
@@ -172,7 +162,7 @@
   const handleDialogSubmit = async () => {
     try {
       dialogVisible.value = false
-      currentUserData.value = {}
+      currentCommentData.value = {}
       // 刷新表格数据
       refreshData()
     } catch (error) {
@@ -183,7 +173,7 @@
   /**
    * 处理表格行选择变化
    */
-  const handleSelectionChange = (selection: UserListItem[]): void => {
+  const handleSelectionChange = (selection: CommentListItem[]): void => {
     selectedRows.value = selection
     console.log('选中行数据:', selectedRows.value)
   }
